@@ -14,6 +14,7 @@ VERBOSE=false
 TAGVAR=false
 TAGONLY=""
 ENABLE_ROLLBACK=false
+ENABLE_DEPLOYMENT_CHECK=true
 AWS_CLI=$(which aws)
 AWS_ECS="$AWS_CLI --output json ecs"
 
@@ -495,6 +496,9 @@ if [ "$BASH_SOURCE" == "$0" ]; then
             --enable-rollback)
                 ENABLE_ROLLBACK=true
                 ;;
+            --disable-deployment-check)
+                ENABLE_DEPLOYMENT_CHECK=false
+                ;;
             -v|--verbose)
                 VERBOSE=true
                 ;;
@@ -537,8 +541,9 @@ if [ "$BASH_SOURCE" == "$0" ]; then
         echo "Task definition updated successfully"
     else
         updateService
-
-        waitForGreenDeployment
+        if [ $ENABLE_DEPLOYMENT_CHECK == true ]; then
+            waitForGreenDeployment
+        fi
     fi
 
     exit 0
